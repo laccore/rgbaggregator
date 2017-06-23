@@ -10,7 +10,6 @@ section for each row of data.
 
 from os import path, listdir
 import time
-import sys
 
 import pandas
 
@@ -35,9 +34,8 @@ def aggregateRGBFiles(rgbFileDir, outputPath, reporter):
     rgbRows = []
     totalFiles = 0
     totalRows = 0
-    rgbFileDir = sys.argv[1]
     rgbFiles = [f for f in listdir(rgbFileDir) if f[-4:] == '.csv']
-    for rgbFile in rgbFiles[:10]:
+    for rgbFile in rgbFiles:
         reporter.report("Processing {} (file {}/{})...".format(rgbFile, totalFiles + 1, len(rgbFiles)), newline=False)
         fileRgbRows = readSectionRGBFile(path.join(rgbFileDir, rgbFile))
         rgbRows.extend(fileRgbRows)
@@ -47,7 +45,6 @@ def aggregateRGBFiles(rgbFileDir, outputPath, reporter):
         totalFiles += 1
     rgbdf = pandas.DataFrame(rgbRows)
     
-    outputPath = sys.argv[2]
     reporter.report("Writing to {}...".format(outputPath), newline=False)
     rgbdf.to_csv(outputPath, index=False, header=False)
     reporter.report("done!\nWrote {} rows from {} files in {} seconds".format(totalRows, totalFiles, round(time.time() - startTime, 3)))
