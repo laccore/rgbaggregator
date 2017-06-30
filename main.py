@@ -24,6 +24,16 @@ if __name__ == '__main__':
         
     rgbFileDir = sys.argv[1]        
     outputPath = sys.argv[2]
+    averageRows = None
+    if len(sys.argv) > 3:
+        try:
+            averageRows = int(sys.argv[3])
+            if averageRows < 2:
+                print "averageRows must be an integer > 1"
+                exit(-1)
+        except ValueError:
+            print "invalid averageRows value {} provided, must be an integer > 1".format(sys.argv[3])
+            exit(-1) 
     reporter = StdoutReporter()
 
-    rgb.aggregateRGBFiles(rgbFileDir, outputPath, reporter)
+    rgb.aggregateRGBFiles(rgbFileDir, outputPath, averageRows, reporter)
