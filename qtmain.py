@@ -18,7 +18,7 @@ class AggregatorWindow(QtWidgets.QWidget):
         self.app = app
         self.lastFileDialogPath = os.path.expanduser("~")
         QtWidgets.QWidget.__init__(self)
-        self.setWindowTitle("CSDCO/LacCore RGB Aggregator 0.0.2")
+        self.setWindowTitle("CSDCO/LacCore RGB Aggregator {}".format(rgb.Version))
         
         self.rgbDirText = LabeledLineText(self, "RGB Directory")
         self.chooseRGBDirButton = QtWidgets.QPushButton("...", self)
@@ -49,6 +49,22 @@ class AggregatorWindow(QtWidgets.QWidget):
         avgLayout.addStretch(1) # push widgets to left
         vlayout.addLayout(avgLayout)
         
+        # round values
+        roundLayout = QtWidgets.QHBoxLayout()
+        self.roundCheckbox = QtWidgets.QCheckBox(self)
+        self.roundCheckbox.clicked.connect(self.roundChecked)
+        roundLayout.addWidget(self.roundCheckbox)
+        self.roundLabel1 = QtWidgets.QLabel("Round depth and RGB values to")
+        roundLayout.addWidget(self.roundLabel1)
+        self.roundText = QtWidgets.QLineEdit(self)
+        self.roundText.setMaximumWidth(50)
+        roundLayout.addWidget(self.roundText)
+        self.roundLabel2 = QtWidgets.QLabel("decimal places")
+        roundLayout.addWidget(self.roundLabel2)
+        self.roundChecked()
+        roundLayout.addStretch(1)
+        vlayout.addLayout(roundLayout)
+        
         vlayout.addWidget(QtWidgets.QLabel("Log!", self))
         self.logArea = QtWidgets.QTextEdit(self)
         self.logArea.setReadOnly(True)
@@ -78,10 +94,18 @@ class AggregatorWindow(QtWidgets.QWidget):
             if averageRows < 2:
                 self._warnbox("Badness", "Average Rows must be an integer > 1")
                 return
+            
+        roundToDecimalPlaces = None
+        if self.roundCheckbox.isChecked():
+            try:
+                roundToDecimalPlaces = int(self.roundText.text())
+            except ValueError:
+                self._warnbox("Badness", "Round to decimal places must be an integer")
+                return
         self.aggButton.setEnabled(False)
         self.logArea.clear()
         try:
-            rgb.aggregateRGBFiles(rgbDir, outFile, averageRows, self)
+            rgb.aggregateRGBFiles(rgbDir, outFile, averageRows, roundToDecimalPlaces, reporter=self)
         except Exception as err:
             self.report("\nSUPER FATAL ERROR: " + str(err))
         self.aggButton.setEnabled(True)
@@ -113,6 +137,12 @@ class AggregatorWindow(QtWidgets.QWidget):
         self.avgRowsText.setEnabled(checked)
         self.avgLabel1.setEnabled(checked)
         self.avgLabel2.setEnabled(checked)
+        
+    def roundChecked(self):
+        checked = self.roundCheckbox.isChecked()
+        self.roundText.setEnabled(checked)
+        self.roundLabel1.setEnabled(checked)
+        self.roundLabel2.setEnabled(checked)
     
     def makeDescLabel(self, desc):
         label = QtWidgets.QLabel(desc)
