@@ -14,7 +14,9 @@ import time
 import pandas
 
 from utils import natural_keys
-Version = "0.0.3"
+
+Version = "0.0.4"
+
 
 # filepath - RGB data file, each line a tab-delimited series of four elements: depth, R, G, B
 # returns list of RGB data rows, each a list of form [depth, R, G, B] 
