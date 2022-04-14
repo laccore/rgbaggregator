@@ -18,21 +18,21 @@ class StdoutReporter():
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
-        print "usage: python rgbaggregator.py <dir containing RGB files> <destination file for combined RGB data>"
-        print "NOTE: script will attempt to consume *any* CSV file in dir - files with unexpected format will result in sadness"
+        print("usage: python rgbaggregator.py <dir containing RGB files> <destination file for combined RGB data>")
+        print("NOTE: script will attempt to consume *any* CSV file in dir - files with unexpected format will result in sadness")
         exit(-1)
         
-    rgbFileDir = sys.argv[1]        
+    rgbFileDir = sys.argv[1]
     outputPath = sys.argv[2]
     averageRows = None
     if len(sys.argv) > 3:
         try:
             averageRows = int(sys.argv[3])
             if averageRows < 2:
-                print "averageRows must be an integer > 1"
+                print("averageRows must be an integer > 1")
                 exit(-1)
         except ValueError:
-            print "invalid averageRows value {} provided, must be an integer > 1".format(sys.argv[3])
+            print(f"invalid averageRows value {sys.argv[3]} provided, must be an integer > 1")
             exit(-1) 
     reporter = StdoutReporter()
 
