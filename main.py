@@ -8,6 +8,7 @@ Command-line main module for rgbaggregator
 
 import sys
 
+import format
 import rgb
 
 class StdoutReporter():
@@ -36,4 +37,5 @@ if __name__ == '__main__':
             exit(-1) 
     reporter = StdoutReporter()
 
-    rgb.aggregateRGBFiles(rgbFileDir, outputPath, averageRows, reporter)
+    rgbFormat = format.getFormats()[0] # always use tab-delimited "original" format in command-line
+    rgb.aggregateRGBFiles(rgbFormat, rgbFileDir, outputPath, averageRows, reporter)
