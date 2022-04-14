@@ -9,7 +9,7 @@ Can be run as a command-line utility (main.py) or Qt-based GUI application (qtma
 ### RGB Formats
 Two RGB formats are supported. For each aggregation process, all input files must use the same format.
 
-#### Raw CIS/Geotek
+#### Raw CIS/Geotek Format
 Depth, R, G, and B values are in a single column, separated by tabs.
 After seven metadata rows (ignored), data starts at row 9.
 
@@ -26,7 +26,7 @@ After seven metadata rows (ignored), data starts at row 9.
 |0.000	36.497	35.519	33.224|
 |0.010	37.082	36.007	33.630...etc|
 
-#### ImageJ
+#### ImageJ Format
 Depth, R, G, and B values are in separate columns. They may be preceded
 by a measurement sequence value in its own column. This is ignored if present.
 Row 1 is a header row. Data starts at row 2.
