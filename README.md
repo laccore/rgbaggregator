@@ -11,7 +11,7 @@ Two RGB formats are supported. For each aggregation process, all input files mus
 
 #### Raw CIS/Geotek Format
 Depth, R, G, and B values are in a single column, separated by tabs.
-After seven metadata rows (ignored), data starts at row 9.
+After eight metadata rows (ignored), data starts at row 9.
 
 |Column 1|
 |--------|
