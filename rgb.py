@@ -13,20 +13,24 @@ import time
 
 import pandas
 
-Version = "0.0.3"
+from utils import natural_keys
+
+Version = "0.0.4"
+
 
 # filepath - RGB data file, each line a tab-delimited series of four elements: depth, R, G, B
 # returns list of RGB data rows, each a list of form [depth, R, G, B] 
-def readSectionRGBFile(filepath, averageRows=None, roundTo=None, reporter=None):
+def readSectionRGBFile(filepath, rgbFormat, averageRows=None, roundTo=None, reporter=None):
     srcfile = open(filepath, 'rU')
-    df = pandas.read_csv(filepath, skiprows=7, skipinitialspace=True)
+    df = pandas.read_csv(filepath, skiprows=rgbFormat.skiprows, skipinitialspace=True)
     srcfile.close()
     
     rgbRows = []
     if not averageRows:
         for tup in df.itertuples(): # itertuples() is significantly faster than iterrows()
             # each row is a tab-delimited blob of four elements: depth, red, green, and blue 
-            datalist = tup[1].split('\t') # (tup[0] is the index)
+            # datalist = tup[1].split('\t') # (tup[0] is the index)
+            datalist = rgbFormat.parse_row(tup)
             if roundTo is not None:
                 datalist = [round(float(elt), roundTo) for elt in datalist]
             datalist.append(path.basename(filepath[:filepath.index('.')])) # append source section
@@ -35,7 +39,9 @@ def readSectionRGBFile(filepath, averageRows=None, roundTo=None, reporter=None):
         totals = {'depth':0, 'r':0, 'g':0, 'b':0}
         totalRows = len(df)
         for rowIndex, tup in enumerate(df.itertuples()):
-            datalist = [float(dat) for dat in tup[1].split('\t')] # (tup[0] is the index)
+            # datalist = [float(dat) for dat in tup[1].split('\t')] # (tup[0] is the index)
+            datalist = rgbFormat.parse_row(tup)
+            datalist = [float(d) for d in datalist]
             totals['depth'] += datalist[0]  
             totals['r'] += datalist[1]
             totals['g'] += datalist[2]
@@ -60,15 +66,15 @@ def readSectionRGBFile(filepath, averageRows=None, roundTo=None, reporter=None):
          
     return rgbRows
 
-def aggregateRGBFiles(rgbFileDir, outputPath, averageRows, roundToDecimalPlaces, reporter):
+def aggregateRGBFiles(rgbFormat, rgbFileDir, outputPath, averageRows, roundToDecimalPlaces, reporter):
     startTime = time.time()
     rgbRows = []
     totalFiles = 0
     totalRows = 0
-    rgbFiles = [f for f in listdir(rgbFileDir) if f[-4:] == '.csv']
+    rgbFiles = sorted([f for f in listdir(rgbFileDir) if f[-4:] == '.csv'], key=natural_keys)
     for rgbFile in rgbFiles:
         reporter.report("Processing {} (file {}/{})...".format(rgbFile, totalFiles + 1, len(rgbFiles)))
-        fileRgbRows = readSectionRGBFile(path.join(rgbFileDir, rgbFile), averageRows, roundToDecimalPlaces, reporter)
+        fileRgbRows = readSectionRGBFile(path.join(rgbFileDir, rgbFile), rgbFormat, averageRows, roundToDecimalPlaces, reporter)
         rgbRows.extend(fileRgbRows)
         totalFileRows = len(fileRgbRows) 
         totalRows += totalFileRows

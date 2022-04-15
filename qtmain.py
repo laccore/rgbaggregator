@@ -11,28 +11,50 @@ import sys
 
 from PyQt5 import QtWidgets
 
+import format
 import rgb
 
+
 class AggregatorWindow(QtWidgets.QWidget):
-    def __init__(self, app):
+    def __init__(self, app, formats):
         self.app = app
+        self.formats = formats
         self.lastFileDialogPath = os.path.expanduser("~")
         QtWidgets.QWidget.__init__(self)
-        self.setWindowTitle("CSDCO/LacCore RGB Aggregator {}".format(rgb.Version))
+        self.setWindowTitle("CSDF RGB Aggregator {}".format(rgb.Version))
+
+        vlayout = QtWidgets.QVBoxLayout(self)
+
+        # RGB data format popup        
+        fmtLayout = QtWidgets.QHBoxLayout()
+        fmtLayout.addWidget(QtWidgets.QLabel("RGB Format"))
+        fmtLayout.addSpacing(10)
+        self.formatPopup = QtWidgets.QComboBox()
+        self.formatPopup.setSizePolicy(QtWidgets.QSizePolicy.Expanding, self.formatPopup.sizePolicy().verticalPolicy())
+        for f in self.formats:
+            self.formatPopup.addItem(f"{f.name}: {f.desc}")
+        fmtLayout.addWidget(self.formatPopup, 0)
+        fmtFullLayout = QtWidgets.QVBoxLayout()
+        fmtFullLayout.addLayout(fmtLayout)
+        fmtFullLayout.setSpacing(0)
+        fmtFullLayout.addWidget(self.makeDescLabel("Format of each row of RGB data."))
+        vlayout.addLayout(fmtFullLayout)
         
+        # Directory containing input RGB files
         self.rgbDirText = LabeledLineText(self, "RGB Directory")
         self.chooseRGBDirButton = QtWidgets.QPushButton("...", self)
         self.chooseRGBDirButton.clicked.connect(self.chooseRGBDir)
+
+        # Output file
         self.outputPathText = LabeledLineText(self, "Output File")
         self.chooseOutputFileButton = QtWidgets.QPushButton("...", self)
         self.chooseOutputFileButton.clicked.connect(self.chooseOutputFile)
         
-        vlayout = QtWidgets.QVBoxLayout(self)
-        dirlayout = self.makeFileLayout(self.rgbDirText, self.chooseRGBDirButton, "Directory containing section RGB files - only *.csv files will be processed")
+        dirlayout = self.makeFileLayout(self.rgbDirText, self.chooseRGBDirButton, "Directory containing section RGB files. Only files ending in .csv will be processed")
         vlayout.addLayout(dirlayout)
-        outputlayout = self.makeFileLayout(self.outputPathText, self.chooseOutputFileButton, "File to which all section RGB data will be written")
+        outputlayout = self.makeFileLayout(self.outputPathText, self.chooseOutputFileButton, "File to which all section RGB data will be written.")
         vlayout.addLayout(outputlayout)
-        
+
         # average rows
         avgLayout = QtWidgets.QHBoxLayout()
         self.avgRowsCheckbox = QtWidgets.QCheckBox(self)
@@ -76,6 +98,9 @@ class AggregatorWindow(QtWidgets.QWidget):
         vlayout.addWidget(self.aggButton, stretch=1)
 
     def aggregate(self):
+        format_idx = self.formatPopup.currentIndex()
+        rgbFormat = self.formats[format_idx]
+
         rgbDir = self.rgbDirText.text()
         if not os.path.exists(rgbDir):
             self._warnbox("Badness", "RGB directory {} does not exist".format(rgbDir))
@@ -105,7 +130,7 @@ class AggregatorWindow(QtWidgets.QWidget):
         self.aggButton.setEnabled(False)
         self.logArea.clear()
         try:
-            rgb.aggregateRGBFiles(rgbDir, outFile, averageRows, roundToDecimalPlaces, reporter=self)
+            rgb.aggregateRGBFiles(rgbFormat, rgbDir, outFile, averageRows, roundToDecimalPlaces, reporter=self)
         except Exception as err:
             self.report("\nSUPER FATAL ERROR: " + str(err))
         self.aggButton.setEnabled(True)
@@ -119,14 +144,14 @@ class AggregatorWindow(QtWidgets.QWidget):
         QtWidgets.QMessageBox.warning(self, title, message)
         
     def chooseRGBDir(self):
-        dlg = QtWidgets.QFileDialog(self, "Choose RGB file directory", self.lastFileDialogPath)
+        dlg = QtWidgets.QFileDialog(self, "Choose RGB file directory", self.rgbDirText.text())
         selectedDir = dlg.getExistingDirectory(self)
         if selectedDir != "":
             self.report("Selected RGB directory {}".format(selectedDir))
             self.rgbDirText.setText(selectedDir)
         
     def chooseOutputFile(self):
-        dlg = QtWidgets.QFileDialog(self, "Choose output file", self.lastFileDialogPath)
+        dlg = QtWidgets.QFileDialog(self, "Choose output file", self.outputPathText.text())
         selectedFile, dummyFilter = dlg.getSaveFileName(self)
         if selectedFile != "":
             self.report("Selected output file {}".format(selectedFile))
@@ -181,6 +206,6 @@ class LabeledLineText(QtWidgets.QWidget):
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
-    window = AggregatorWindow(app)
+    window = AggregatorWindow(app, format.getFormats())
     window.show()
     sys.exit(app.exec_())
