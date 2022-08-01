@@ -15,7 +15,7 @@ import pandas
 
 from utils import natural_keys, add_csv_extension
 
-Version = "0.0.4"
+Version = "1.0.0"
 
 
 # filepath - RGB data file, each line a tab-delimited series of four elements: depth, R, G, B
