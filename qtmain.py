@@ -52,7 +52,7 @@ class AggregatorWindow(QtWidgets.QWidget):
         
         dirlayout = self.makeFileLayout(self.rgbDirText, self.chooseRGBDirButton, "Directory containing section RGB files. Only files ending in .csv will be processed")
         vlayout.addLayout(dirlayout)
-        outputlayout = self.makeFileLayout(self.outputPathText, self.chooseOutputFileButton, "File to which all section RGB data will be written.")
+        outputlayout = self.makeFileLayout(self.outputPathText, self.chooseOutputFileButton, "CSV file to which all section RGB data will be written.")
         vlayout.addLayout(outputlayout)
 
         # average rows

@@ -13,7 +13,7 @@ import time
 
 import pandas
 
-from utils import natural_keys
+from utils import natural_keys, add_csv_extension
 
 Version = "0.0.4"
 
@@ -82,6 +82,7 @@ def aggregateRGBFiles(rgbFormat, rgbFileDir, outputPath, averageRows, roundToDec
     reporter.report("Creating goliath DataFrame...")
     rgbdf = pandas.DataFrame(rgbRows)
     
+    outputPath = add_csv_extension(outputPath)
     reporter.report("Writing to {}...".format(outputPath), newline=False)
     rgbdf.to_csv(outputPath, index=False, header=False)
     reporter.report("done!\nWrote {} rows from {} files in {} seconds".format(totalRows, totalFiles, round(time.time() - startTime, 3)))

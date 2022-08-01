@@ -21,3 +21,8 @@ def natural_keys(text):
 #
 # god bless stack overflow, amen
 ###############################
+
+def add_csv_extension(filename):
+    if not filename.endswith('.csv'):
+        return filename + '.csv'
+    return filename
