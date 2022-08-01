@@ -6,6 +6,7 @@ Created on Jun 22, 2017
 Qt GUI main for rgbaggregator
 '''
 
+import platform
 import os
 import sys
 
@@ -171,7 +172,8 @@ class AggregatorWindow(QtWidgets.QWidget):
     
     def makeDescLabel(self, desc):
         label = QtWidgets.QLabel(desc)
-        label.setStyleSheet("QLabel {font-size: 11pt;}")
+        if platform.system() == 'Darwin':
+            label.setStyleSheet("QLabel {font-size: 11pt;}")
         return label
     
     # return layout with editText (includes label) and chooserButton on one line,
